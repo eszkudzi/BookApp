@@ -4,7 +4,9 @@
     {
         public Book()
         { }
-        public string? Name { get; set; }
-        public override string ToString() => $"Id: {Id}, FirstName: {Name}";
+        public string? Title { get; set; }
+        public string? Author { get; set; }
+        public int? PublicationDate { get; set; }
+    public override string ToString() => $"Id: {Id}, Title: {Title}, Author: {Author}, Publication date: {PublicationDate}";
     }
 }
