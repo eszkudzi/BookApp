@@ -1,6 +1,8 @@
-﻿namespace BookApp.Repositories
+﻿using BookApp.Entities;
+
+namespace BookApp.Repositories
 {
-    public interface IRepository : IReadRepository<T>, IWriteRepository<T>
+    public interface IRepository<T> : IReadRepository<T>, IWriteRepository<T>
         where T : class, IEntity
     {
 
