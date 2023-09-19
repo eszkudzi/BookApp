@@ -1,2 +1,3 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using BookApp.Data;
+using BookApp.Entities;
+using BookApp.Repositories;
