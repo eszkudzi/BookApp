@@ -8,6 +8,7 @@ namespace BookApp.Repositories
         private readonly DbSet<T> _dbSet;
         private readonly DbContext _dbContext;
 
+
         public SqlRepository(DbContext dbContext)
         {
             _dbContext = dbContext;

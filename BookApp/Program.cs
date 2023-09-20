@@ -5,9 +5,9 @@ using BookApp.Repositories;
 var bookRepository = new SqlRepository<Book>(new BookAppDbContext());
 
 Console.WriteLine("Hello! This is a digital book archive.");
-Console.WriteLine("You cannot currently add new items to the available lists.");
+Console.WriteLine("Choose what you want to do.");
 Console.WriteLine("---------------------------------------");
-Console.WriteLine("1 - Show list of books.\n" + "2 - Show list of special books\n" + "X - Close app");
+Console.WriteLine("1 - Add book.\n" + "2 - Remove book.\n" + "3 - Show book by Id.\n" + "X - Close app");
 Console.WriteLine("---------------------------------------");
 Console.WriteLine("What you want to do? \nPress key 1, 2 or X: ");
 
@@ -19,12 +19,13 @@ while (!close)
     switch (userSelectionOfOptions)
     {
         case "1":
-            AddBooks(bookRepository);
-            WriteAllToConsole(bookRepository);
+            Console.WriteLine("Choose what you want to do.");
             close = true;
             break;
         case "2":
-            AddBooksSpecial(bookRepository);
+            close = true;
+            break;
+        case "3":
             WriteAllToConsole(bookRepository);
             close = true;
             break;
@@ -39,7 +40,15 @@ while (!close)
     }
 }
 
-static void AddBooks(IRepository<Book> bookRepository)
+static void SaveLogFile(string repository, string action, string comment)
+{
+    using (var writer = File.AppendText($"BookAppLog.txt"))
+    {
+        writer.WriteLine($"[{DateTime.Now}]-{repository}-{action}-[{comment}]");
+    }
+}
+
+/*static void AddBooks(IRepository<Book> bookRepository)
 {
     bookRepository.Add(new Book { Title = "Ordinary Book 1", Author = "John Smith I", PublicationDate = 2021 });
     bookRepository.Add(new Book { Title = "Ordinary Book 2", Author = "John Smith II", PublicationDate = 2022 });
@@ -53,7 +62,7 @@ static void AddBooksSpecial(IWriteRepository<BookSpecial> bookSpecialRepository)
     bookSpecialRepository.Add(new BookSpecial { Title = "Extra Book 1", Author = "Anna Smith II", PublicationDate = 2022 });
     bookSpecialRepository.Add(new BookSpecial { Title = "Extra Book 1", Author = "Anna Smith III", PublicationDate = 2023 });
     bookSpecialRepository.Save();
-}
+}*/
 
 static void WriteAllToConsole(IReadRepository<IEntity> repository)
 {

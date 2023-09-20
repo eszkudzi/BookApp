@@ -6,6 +6,8 @@ namespace BookApp.Repositories
     {
         private readonly List<T> _items = new();
 
+        public event EventHandler<T>? ItemAction;
+
         public IEnumerable<T> GetAll()
         {
             return _items.ToList();
@@ -20,11 +22,13 @@ namespace BookApp.Repositories
         {
             item.Id = _items.Count + 1;
             _items.Add(item);
+            ItemAction?.Invoke(this, item);
         }
 
         public void Remove(T item)
         {
             _items.Remove(item);
+            ItemAction?.Invoke(this, item);
         }
 
         public void Save()
