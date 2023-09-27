@@ -3,11 +3,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookApp.Repositories
 {
-    public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
+    public class SqlRepository<T> : IRepository<T> 
+        where T : class, IEntity
     {
         private readonly DbSet<T> _dbSet;
         private readonly DbContext _dbContext;
 
+        public event EventHandler<T>? ItemAdded;
+        public event EventHandler<T>? ItemRemoved;
+
+        public event EventHandler? ItemSaved;
 
         public SqlRepository(DbContext dbContext)
         {
@@ -15,9 +20,22 @@ namespace BookApp.Repositories
             _dbSet = _dbContext.Set<T>();
         }
 
-        public IEnumerable<T> GetAll()
+        public void Add(T item)
         {
-            return _dbSet.ToList();
+            _dbSet.Add(item);
+            ItemAdded?.Invoke(this, item);
+        }
+
+        public void Remove(T item)
+        {
+            _dbSet.Remove(item);
+            ItemRemoved?.Invoke(this, item);
+        }
+
+        public void Save()
+        {
+            _dbContext.SaveChanges();
+            ItemSaved?.Invoke(this, new EventArgs());
         }
 
         public T GetById(int id)
@@ -25,19 +43,9 @@ namespace BookApp.Repositories
             return _dbSet.Find(id);
         }
 
-        public void Add(T item)
+        public IEnumerable<T> GetAll()
         {
-            _dbSet.Add(item);
-        }
-
-        public void Remove(T item)
-        {
-            _dbSet.Remove(item);
-        }
-
-        public void Save()
-        {
-            _dbContext.SaveChanges();
+            return _dbSet.ToList();
         }
     }
 }
