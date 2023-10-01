@@ -6,7 +6,6 @@ IRepository<Book> bookRepository;
 IRepository<BookOwner> bookOwnerRepository;
 
 bool closeApp = true;
-static string GetInputFromUser() => Console.ReadLine() ?? "";
 
 Console.WriteLine("--------------------------------------------------------", Console.BackgroundColor = ConsoleColor.Cyan, Console.ForegroundColor = ConsoleColor.Black);
 Console.WriteLine("---  HELLO! THIS IS BOOK APP - DIGITAL BOOK ARCHIVE  ---");
@@ -27,8 +26,8 @@ switch (GetInputFromUser().ToUpper())
         Console.ResetColor();
         break;
     case "2":
-        bookRepository = GetRepository<Book>(repositoryType.IN_MEMORY);
-        bookOwnerRepository = GetRepository<BookOwner>(repositoryType.IN_MEMORY);
+        bookRepository = GetRepository<Book>(repositoryType.IN_MEMORY_SQL);
+        bookOwnerRepository = GetRepository<BookOwner>(repositoryType.IN_MEMORY_SQL);
         Console.WriteLine("You choose work with data in memory.\n", Console.ForegroundColor = ConsoleColor.Yellow);
         Console.ResetColor();
         break;
@@ -41,21 +40,22 @@ switch (GetInputFromUser().ToUpper())
 
 while (closeApp)
 {
-    Console.WriteLine("1 - Add Book or Owner\n" + "2 - Remove Book or Owner\n" + "3 - Show Book or Owner by ID\n" + "4 - View all Book or Owner data\n" + "X - Close app", Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.WriteLine("What do you want to do?\n" + "1 - Add Book or Owner\n" + "2 - Remove Book or Owner\n" + "3 - Show Book or Owner by ID\n" + "4 - View all Book or Owner data\n" + "X - Close app", Console.ForegroundColor = ConsoleColor.Cyan);
     Console.ResetColor();
 
     string? action = GetInputFromUser();
-    if (action != "1" || action != "2" || action != "3" || action != "4")
+    if ((action != "1") && (action != "2") && (action != "3") && (action != "4") && (action.ToUpper() != "X"))
     {
-        Console.WriteLine($"You choose invalid option. Choose again!", Console.ForegroundColor = ConsoleColor.Red);
+        Console.WriteLine($"You choose invalid option. Choose again!\n", Console.ForegroundColor = ConsoleColor.Red);
         Console.ResetColor();
         continue;
-    }else if(action.ToUpper() == "X")
+    }
+    else if (action.ToUpper() == "X")
     {
         break;
     }
 
-    Console.WriteLine("Which type of data do you want to work with? Books or Owners?", Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.WriteLine("Which type of data do you want to work with?", Console.ForegroundColor = ConsoleColor.Cyan);
     Console.ResetColor();
     entitiesType bookOrOwnerType = GetBookOrOwnerType();
 
@@ -70,11 +70,11 @@ while (closeApp)
             break;
 
         case "3":
-            ShowBookOrOwnerByID(bookRepository, bookOwnerRepository, bookOrOwnerType);
+            ShowByIdBookOrOwner(bookRepository, bookOwnerRepository, bookOrOwnerType);
             break;
 
         case "4":
-            ViewBookOrOwnerData(bookRepository, bookOwnerRepository, bookOrOwnerType);
+            ShowAllDataBookOrOwner(bookRepository, bookOwnerRepository, bookOrOwnerType);
             break;
         case "X":
             closeApp = false;
@@ -89,7 +89,7 @@ while (closeApp)
 
 Console.WriteLine("The application has been closed.", Console.ForegroundColor = ConsoleColor.Red);
 Console.ResetColor();
-
+static string GetInputFromUser() => Console.ReadLine() ?? "";
 static T GetItemByID<T>(IRepository<T> repository, int id) where T : class, IEntity, new()
 {
     try
@@ -103,63 +103,63 @@ static T GetItemByID<T>(IRepository<T> repository, int id) where T : class, IEnt
     }
 }
 
-IRepository<T> GetRepository<T>(repositoryType repoType) where T : class, IEntity
+IRepository<T> GetRepository<T>(repositoryType repositoryType) where T : class, IEntity
 {
-    switch (repoType)
+    switch (repositoryType)
     {
-        case repositoryType.IN_MEMORY:
-            SqlRepository<T> repoSql = new SqlRepository<T>(new BookAppDbContext());
-            repoSql.ItemAdded += OnItemAddedCreateLog;
-            repoSql.ItemRemoved += OnItemRemovedCreateLog;
-            return repoSql;
+        case repositoryType.IN_MEMORY_SQL:
+            SqlRepository<T> repositorySqlInMemory = new SqlRepository<T>(new BookAppDbContext());
+            repositorySqlInMemory.ItemAdded += OnItemAddedSaveEvent;
+            repositorySqlInMemory.ItemRemoved += OnItemRemovedSaveEvent;
+            return repositorySqlInMemory;
 
         case repositoryType.JSON_FILE:
-            FileRepository<T> repoInFile = new FileRepository<T>();
-            repoInFile.ItemAdded += OnItemAddedCreateLog;
-            repoInFile.ItemRemoved += OnItemRemovedCreateLog;
-            return repoInFile;
+            FileRepository<T> repositoryFile = new FileRepository<T>();
+            repositoryFile.ItemAdded += OnItemAddedSaveEvent;
+            repositoryFile.ItemRemoved += OnItemRemovedSaveEvent;
+            return repositoryFile;
 
         default:
             return null;
     }
 }
 
-static void OnItemRemovedCreateLog(object? sender, IEntity e)
+static void OnItemRemovedSaveEvent(object? sender, IEntity e)
 {
     if (sender is not null)
     {
         var senderName = sender.GetType().Name;
-        SaveLogFile($"{senderName.Substring(0, senderName.Length - 2)}", $"{e.GetType().Name}Removed", e.ToString() ?? "");
+        SaveToLogFile($"{senderName.Substring(0, senderName.Length - 2)}", $"{e.GetType().Name}Removed", e.ToString() ?? "");
     }
 }
 
-static void OnItemAddedCreateLog(object? sender, IEntity e)
+static void OnItemAddedSaveEvent(object? sender, IEntity e)
 {
     if (sender is not null)
     {
         var senderName = sender.GetType().Name;
-        SaveLogFile($"{senderName.Substring(0, senderName.Length - 2)}", $"{e.GetType().Name}Added", e.ToString() ?? "");
+        SaveToLogFile($"{senderName.Substring(0, senderName.Length - 2)}", $"{e.GetType().Name}Added", e.ToString() ?? "");
     }
 }
 
-static void SaveLogFile(string repositoryBookOrOwner, string action, string comment)
+static void SaveToLogFile(string repositoryType, string action, string comment)
 {
     using (var writer = File.AppendText($"BookAppLog.txt"))
     {
-        writer.WriteLine($"[{DateTime.Now}]-{repositoryBookOrOwner}-{action}-[{comment}]");
+        writer.WriteLine($"[{DateTime.Now}]-{repositoryType}-{action}-[{comment}]");
     }
 }
 
 static Book GetDataBook()
 {
     Book book = new();
-    Console.Write("Title: ",Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.WriteLine("You can enter data of book.", Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.Write("Title: ", Console.ForegroundColor = ConsoleColor.Cyan);
     Console.ResetColor();
     book.Title = GetInputFromUser();
 
-    Console.Write("Author: ",Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.Write("Author: ", Console.ForegroundColor = ConsoleColor.Cyan);
     Console.ResetColor();
-
     book.Author = GetInputFromUser();
 
     return book;
@@ -168,6 +168,7 @@ static Book GetDataBook()
 static BookOwner GetDataOwner()
 {
     BookOwner bookOwner = new();
+    Console.WriteLine("You can enter data of owner.", Console.ForegroundColor = ConsoleColor.Cyan);
     Console.Write("First name: ", Console.ForegroundColor = ConsoleColor.Cyan);
     Console.ResetColor();
     bookOwner.FirstName = GetInputFromUser();
@@ -197,7 +198,8 @@ static entitiesType GetBookOrOwnerType()
             return entitiesType.OWNER;
 
         default:
-            Console.WriteLine("Choose option: BOOK (B) or OWNER (O):\n", Console.ForegroundColor = ConsoleColor.Cyan);
+            Console.WriteLine($"You choose invalid option.", Console.ForegroundColor = ConsoleColor.Red);
+            Console.WriteLine("Select one of the options:", Console.ForegroundColor = ConsoleColor.Cyan);
             Console.ResetColor();
             return GetBookOrOwnerType();
     }
@@ -213,14 +215,14 @@ static void AddBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwn
                 Book bookToAdd = GetDataBook();
                 bookRepository.Add(bookToAdd);
                 bookRepository.Save();
-                Console.Write($"Book was added.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                Console.WriteLine($"Book was added.\n", Console.ForegroundColor = ConsoleColor.Yellow);
                 Console.ResetColor();
                 break;
             case entitiesType.OWNER:
                 BookOwner bookOwnerToAdd = GetDataOwner();
                 bookOwnerRepository.Add(bookOwnerToAdd);
                 bookOwnerRepository.Save();
-                Console.Write($"Owner was added.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                Console.WriteLine($"Owner was added.\n", Console.ForegroundColor = ConsoleColor.Yellow);
                 Console.ResetColor();
                 break;
         }
@@ -235,7 +237,8 @@ static void AddBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwn
 
 static void RemoveBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
 {
-    Console.Write($"Select ID of {bookOrOwnerType} to remove:");
+    Console.Write($"Select ID of {bookOrOwnerType} to remove:", Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.ResetColor();
     try
     {
         int idToRemove = Int32.Parse(GetInputFromUser());
@@ -245,14 +248,14 @@ static void RemoveBookOrOwner(IRepository<Book> bookRepository, IRepository<Book
                 Book bookToRemove = GetItemByID(bookRepository, idToRemove);
                 bookRepository.Remove(bookToRemove);
                 bookRepository.Save();
-                Console.Write($"Book was removed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                Console.WriteLine($"Book was removed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
                 Console.ResetColor();
                 break;
             case entitiesType.OWNER:
                 BookOwner ownerToRemove = GetItemByID(bookOwnerRepository, idToRemove);
                 bookOwnerRepository.Add(ownerToRemove);
                 bookOwnerRepository.Save();
-                Console.Write($"Owner was removed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                Console.WriteLine($"Owner was removed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
                 Console.ResetColor();
                 break;
         }
@@ -265,21 +268,24 @@ static void RemoveBookOrOwner(IRepository<Book> bookRepository, IRepository<Book
     }
 }
 
-static void ShowBookOrOwnerByID(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
+static void ShowByIdBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
 {
-    Console.Write($"Select ID of {bookOrOwnerType} to show:");
+    Console.Write($"Select ID of {bookOrOwnerType} to show:", Console.ForegroundColor = ConsoleColor.Cyan);
+    Console.ResetColor();
     try
     {
-        int idToShow = Int32.Parse(GetInputFromUser());
+        int idItem = Int32.Parse(GetInputFromUser());
         switch (bookOrOwnerType)
         {
             case entitiesType.BOOK:
-                Book bookToShow = GetItemByID(bookRepository, idToShow);
+                Book bookToShow = GetItemByID(bookRepository, idItem);
                 Console.WriteLine(bookToShow);
+                Console.WriteLine();
                 break;
             case entitiesType.OWNER:
-                BookOwner ownerToShow = GetItemByID(bookOwnerRepository, idToShow);
+                BookOwner ownerToShow = GetItemByID(bookOwnerRepository, idItem);
                 Console.WriteLine(ownerToShow);
+                Console.WriteLine();
                 break;
         }
     }
@@ -291,7 +297,7 @@ static void ShowBookOrOwnerByID(IRepository<Book> bookRepository, IRepository<Bo
     }
 }
 
-static void ViewBookOrOwnerData(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
+static void ShowAllDataBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
 {
     switch (bookOrOwnerType)
     {
@@ -310,14 +316,15 @@ static void ViewBookOrOwnerData(IRepository<Book> bookRepository, IRepository<Bo
             }
             break;
     }
-    Console.WriteLine("The available data is displayed.", Console.ForegroundColor = ConsoleColor.Yellow);
+    Console.WriteLine("The available data was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
     Console.ResetColor();
+    Console.WriteLine();
 }
 
 
 enum repositoryType
 {
-    IN_MEMORY,
+    IN_MEMORY_SQL,
     JSON_FILE
 }
 

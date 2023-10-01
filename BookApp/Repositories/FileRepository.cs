@@ -9,7 +9,7 @@ namespace BookApp.Repositories
         private readonly List<T> _itemsSet = new();
         private readonly List<T> _itemsToAdd = new();
         private readonly List<int> _itemsIdToRemove = new();
-        private readonly string _directoryname = $"Repository";
+        private readonly string _directory = $"Repository";
         private readonly string _path = $".\\Repository\\{typeof(T).Name}.txt";
         public FileRepository()
         {
@@ -84,9 +84,9 @@ namespace BookApp.Repositories
         }
         private void CreateFileIfNotExist()
         {
-            if (!Directory.Exists(".\\" + _directoryname))
+            if (!Directory.Exists(".\\" + _directory))
             {
-                Directory.CreateDirectory(".\\" + _directoryname);
+                Directory.CreateDirectory(".\\" + _directory);
             }
             if (!File.Exists(_path))
             {
