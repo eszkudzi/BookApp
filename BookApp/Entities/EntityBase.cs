@@ -1,10 +1,12 @@
-﻿namespace BookApp.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace BookApp.Entities
 {
     public abstract class EntityBase : IEntity
     {
         public int Id { get; set; }
-        public string? Title { get; set; }
-        public string? Author { get; set; }
-        public int? PublicationDate { get; set; }
+        //public DateTime CreatedDate { get; set; }
+
     }
 }
