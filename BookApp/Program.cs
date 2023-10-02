@@ -109,14 +109,14 @@ IRepository<T> GetRepository<T>(repositoryType repositoryType) where T : class, 
     {
         case repositoryType.IN_MEMORY_SQL:
             SqlRepository<T> repositorySqlInMemory = new SqlRepository<T>(new BookAppDbContext());
-            repositorySqlInMemory.ItemAdded += OnItemAddedSaveEvent;
-            repositorySqlInMemory.ItemRemoved += OnItemRemovedSaveEvent;
+            repositorySqlInMemory.ItemAdded += OnItemAddedSubscribeEvent;
+            repositorySqlInMemory.ItemRemoved += OnItemRemovedSubscribeEvent;
             return repositorySqlInMemory;
 
         case repositoryType.JSON_FILE:
             FileRepository<T> repositoryFile = new FileRepository<T>();
-            repositoryFile.ItemAdded += OnItemAddedSaveEvent;
-            repositoryFile.ItemRemoved += OnItemRemovedSaveEvent;
+            repositoryFile.ItemAdded += OnItemAddedSubscribeEvent;
+            repositoryFile.ItemRemoved += OnItemRemovedSubscribeEvent;
             return repositoryFile;
 
         default:
@@ -124,7 +124,7 @@ IRepository<T> GetRepository<T>(repositoryType repositoryType) where T : class, 
     }
 }
 
-static void OnItemRemovedSaveEvent(object? sender, IEntity e)
+static void OnItemRemovedSubscribeEvent(object? sender, IEntity e)
 {
     if (sender is not null)
     {
@@ -133,7 +133,7 @@ static void OnItemRemovedSaveEvent(object? sender, IEntity e)
     }
 }
 
-static void OnItemAddedSaveEvent(object? sender, IEntity e)
+static void OnItemAddedSubscribeEvent(object? sender, IEntity e)
 {
     if (sender is not null)
     {

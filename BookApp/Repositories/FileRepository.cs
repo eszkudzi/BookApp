@@ -6,52 +6,50 @@ namespace BookApp.Repositories
     public class FileRepository<T> : IRepository<T>
     where T : class, IEntity
     {
-        private readonly List<T> _itemsSet = new();
-        private readonly List<T> _itemsToAdd = new();
-        private readonly List<int> _itemsIdToRemove = new();
-        private readonly string _directory = $"Repository";
-        private readonly string _path = $".\\Repository\\{typeof(T).Name}.txt";
+        private readonly List<T> _items = new();
+        private readonly string _folder = $"FileRepository";
+        private readonly string _path = $".\\FileRepository\\{typeof(T).Name}.json";
+        public event EventHandler<T>? ItemAdded;
+        public event EventHandler<T>? ItemRemoved;
+        public event EventHandler? ItemSaved;
         public FileRepository()
         {
         }
-        public event EventHandler<T>? ItemAdded;
-        public event EventHandler<T>? ItemRemoved;
-        public event EventHandler? ItemsSaved;
         public void Add(T item)
         {
-            item.Id = _itemsToAdd.Count + 1;
-            _itemsToAdd.Add(item);
+            item.Id = _items.Count + 1;
+            _items.Add(item);
             ItemAdded?.Invoke(this, item);
         }
-
-        public IEnumerable<T> GetAll()
+        public void Remove(T item)
         {
-            _itemsSet.Clear();
-            CreateFileIfNotExist();
-
-            List<string> jsonItemsAll = File.ReadAllLines(_path).ToList();
-            foreach (var jsonItem in jsonItemsAll)
-            {
-                if (jsonItem is not null)
-                {
-                    _itemsSet.Add(JsonSerializer.Deserialize<T>(jsonItem));
-                }
-            }
-            return _itemsSet.ToList();
+            _items.Remove(item);
+            ItemRemoved?.Invoke(this, item);
         }
         public T GetById(int id)
         {
             IEnumerable<T> items = GetAll();
             return items.Single(x => x.Id == id);
         }
-        public void Remove(T item)
+        public IEnumerable<T> GetAll()
         {
-            _itemsIdToRemove.Add(item.Id);
-            ItemRemoved?.Invoke(this, item);
+            _items.Clear();
+            CreateFile();
+
+            List<string> jsonAll = File.ReadAllLines(_path).ToList();
+            foreach (var json in jsonAll)
+            {
+                if (json is not null)
+                {
+                    _items.Add(JsonSerializer.Deserialize<T>(json));
+                }
+            }
+            return _items.ToList();
         }
         public void Save()
         {
-            CreateFileIfNotExist();
+            CreateFile();
+
             string tempFile = Path.GetTempFileName();
             using (var sReader = new StreamReader(_path))
             {
@@ -62,31 +60,24 @@ namespace BookApp.Repositories
                     while ((readJson = sReader.ReadLine()) != null)
                     {
                         var item = JsonSerializer.Deserialize<T>(readJson);
-                        if (item is not null)
-                        {
-                            id = item.Id;
-                            if (!_itemsIdToRemove.Contains(id))
-                            {
-                                sWriter.WriteLine(readJson);
-                            }
-                        }
+
                     }
-                    foreach (var itemToAdd in _itemsToAdd)
+                    foreach (var itemSerialize in _items)
                     {
-                        itemToAdd.Id += id;
-                        sWriter.WriteLine(JsonSerializer.Serialize<T>(itemToAdd));
+                        itemSerialize.Id += id;
+                        sWriter.WriteLine(JsonSerializer.Serialize<T>(itemSerialize));
                     }
                 }
             }
             File.Delete(_path);
             File.Move(tempFile, _path);
-            ItemsSaved?.Invoke(this, new EventArgs());
+            ItemSaved?.Invoke(this, new EventArgs());
         }
-        private void CreateFileIfNotExist()
+        private void CreateFile()
         {
-            if (!Directory.Exists(".\\" + _directory))
+            if (!Directory.Exists(".\\" + _folder))
             {
-                Directory.CreateDirectory(".\\" + _directory);
+                Directory.CreateDirectory(".\\" + _folder);
             }
             if (!File.Exists(_path))
             {
