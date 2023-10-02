@@ -14,6 +14,10 @@ Console.ResetColor();
 Console.WriteLine("Currently you can use only data of books or book owners.\n", Console.ForegroundColor = ConsoleColor.Cyan);
 Console.WriteLine("How do you want to store the data?");
 Console.WriteLine("1 - Data stored in .jsons files.\n" + "2 - Data stored in memory.");
+Console.WriteLine("--------------------------------------------------------");
+Console.WriteLine("Data stored in .json files you can read after restarting the application.");
+Console.WriteLine("Data stored in memory will not be readable after closing the application.");
+Console.WriteLine("--------------------------------------------------------");
 Console.WriteLine("Currently you cannot store data in MS SQL Server.");
 Console.ResetColor();
 
