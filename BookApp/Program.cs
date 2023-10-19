@@ -1,8 +1,20 @@
-﻿using BookApp.Data;
+﻿using Microsoft.Extensions.DependencyInjection;
+using BookApp;
+using BookApp.Data;
 using BookApp.Entities;
 using BookApp.Repositories;
+using BookApp.Services;
 
-IRepository<Book> bookRepository;
+var services = new ServiceCollection();
+services.AddSingleton<IApp, App>();
+
+services.AddSingleton<IUserCommunication, UserCommunication>();
+
+var serviceProvider = services.BuildServiceProvider();
+var app = serviceProvider.GetService<IApp>()!;
+app.Run();
+
+/*IRepository<Book> bookRepository;
 IRepository<BookOwner> bookOwnerRepository;
 
 bool closeApp = true;
@@ -337,3 +349,5 @@ enum entitiesType
     BOOK,
     OWNER
 }
+
+*/
