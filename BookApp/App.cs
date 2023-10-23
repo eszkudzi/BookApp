@@ -1,6 +1,4 @@
-﻿using BookApp.Entities;
-using BookApp.Repositories;
-using BookApp.Services;
+﻿using BookApp.Services;
 
 namespace BookApp
 {
