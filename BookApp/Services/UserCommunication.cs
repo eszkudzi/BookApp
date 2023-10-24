@@ -147,7 +147,7 @@ namespace BookApp.Services
 
                 default:
                     Console.WriteLine($"You choose invalid option.", Console.ForegroundColor = ConsoleColor.Red);
-                    Console.WriteLine("Select one of the options:", Console.ForegroundColor = ConsoleColor.Cyan);
+                    Console.WriteLine("Select one of the options: ", Console.ForegroundColor = ConsoleColor.Cyan);
                     Console.ResetColor();
                     return GetBookOrOwnerType();
             }
