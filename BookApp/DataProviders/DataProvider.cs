@@ -28,12 +28,6 @@ namespace BookApp.DataProviders
             return author;
         }
 
-        public List<BookOwner> OrderBookOwnerByFirstNameAndLastName()
-        {
-            var bookOwner = _bookOwnerRepository.GetAll();
-            return bookOwner.OrderBy(x => x.FirstName).ThenBy(x => x.LastName).ToList();
-        }
-
         public List<BookOwner> OrderBookOwnerByLastName()
         {
             var bookOwner = _bookOwnerRepository.GetAll();
@@ -46,22 +40,10 @@ namespace BookApp.DataProviders
             return book.OrderBy(x => x.Title).ToList();
         }
 
-        public List<Book> OrderBooksByTitleAndAuthor()
-        {
-            var book = _bookRepository.GetAll();
-            return book.OrderBy(x => x.Title).ThenBy(x => x.Author).ToList();
-        }
-
         public List<BookOwner> SkipBookOwner(int howMany)
         {
             var bookOwner = _bookOwnerRepository.GetAll();
             return bookOwner.OrderBy(x => x.Id).Skip(howMany).ToList();
-        }
-
-        public List<BookOwner> SkipBookOwnerWhileLastNameStartsWith(string prefix)
-        {
-            var bookOwner = _bookOwnerRepository.GetAll();
-            return bookOwner.OrderBy(x => x.Id).SkipWhile(x => x.LastName.StartsWith(prefix)).ToList();
         }
 
         public List<Book> SkipBooks(int howMany)
@@ -70,34 +52,16 @@ namespace BookApp.DataProviders
             return book.OrderBy(x => x.Id).Skip(howMany).ToList();
         }
 
-        public List<Book> SkipBooksWhileTitleStartsWith(string prefix)
-        {
-            var book = _bookRepository.GetAll();
-            return book.OrderBy(x => x.Id).SkipWhile(x => x.Title.StartsWith(prefix)).ToList();
-        }
-
         public List<BookOwner> TakeBookOwners(int howMany)
         {
             var bookOwner = _bookOwnerRepository.GetAll();
             return bookOwner.OrderBy(x => x.Id).Take(howMany).ToList();
         }
 
-        public List<BookOwner> TakeBookOwnerWhileLastNameStartsWith(string prefix)
-        {
-            var bookOwner = _bookOwnerRepository.GetAll();
-            return bookOwner.OrderBy(x => x.Id).TakeWhile(x => x.LastName.StartsWith(prefix)).ToList();
-        }
-
         public List<Book> TakeBooks(int howMany)
         {
             var book = _bookRepository.GetAll();
             return book.OrderBy(x => x.Id).Take(howMany).ToList();
-        }
-
-        public List<Book> TakeBooksWhileTitleStartsWith(string prefix)
-        {
-            var book = _bookRepository.GetAll();
-            return book.OrderBy(x => x.Id).TakeWhile(x => x.Title.StartsWith(prefix)).ToList();
         }
 
         public List<BookOwner> WhereBookOwnerLastNameStartsWith(string prefix)

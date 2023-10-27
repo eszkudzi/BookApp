@@ -1,5 +1,4 @@
-﻿using BookApp.Data;
-using BookApp.DataProviders;
+﻿using BookApp.DataProviders;
 using BookApp.Entities;
 using BookApp.Repositories;
 
@@ -10,8 +9,6 @@ namespace BookApp.Services
         private readonly IRepository<Book> _bookRepository;
         private readonly IRepository<BookOwner> _bookOwnerRepository;
         private readonly IDataProvider _dataProvider;
-        private string prefix;
-        private int howMany;
 
         static string GetInputFromUser() => Console.ReadLine() ?? "";
         static T GetItemByID<T>(IRepository<T> repository, int id) where T : class, IEntity, new()
@@ -34,24 +31,18 @@ namespace BookApp.Services
             _dataProvider = dataProvider;
         }
 
-        public void Intro()
+        public void Communication()
         {
+            bool closeApp = true;
+
             Console.WriteLine("--------------------------------------------------------", Console.BackgroundColor = ConsoleColor.Cyan, Console.ForegroundColor = ConsoleColor.Black);
             Console.WriteLine("---  HELLO! THIS IS BOOK APP - DIGITAL BOOK ARCHIVE  ---");
             Console.WriteLine("--------------------------------------------------------");
-            Console.WriteLine("Data stored in memory. Data will not be readable after closing the application.");
+            Console.WriteLine("----------------  Data stored in file.  ----------------");
             Console.WriteLine("--------------------------------------------------------");
             Console.ResetColor();
-        }
 
-        public void Communication()
-        {
-            Intro();
-
-            bool closeApp = true;
-            string? action = GetInputFromUser();
-
-            while (closeApp)
+            do
             {
                 Console.WriteLine("What do you want to do?\n"
                     + "1 - Add Books or Owners\n"
@@ -65,6 +56,8 @@ namespace BookApp.Services
                     + "9 - Skip Books or Owners data\n"
                     + "X - Close app", Console.ForegroundColor = ConsoleColor.Cyan);
                 Console.ResetColor();
+
+                string? action = GetInputFromUser();
 
 
                 if ((action != "1") && (action != "2") && (action != "3") && (action != "4") && (action != "5") && (action != "6") && (action != "7") && (action != "8") && (action != "9") && (action.ToUpper() != "X"))
@@ -107,13 +100,13 @@ namespace BookApp.Services
                         OrderDataBookOrOwner(_dataProvider, bookOrOwnerType);
                         break;
                     case "7":
-                        ShowWhereBookTitleOrBookOwnerLastNameStartsWith(_dataProvider, bookOrOwnerType, prefix);
+                        ShowWhereBookTitleOrBookOwnerLastNameStartsWith(_dataProvider, bookOrOwnerType);
                         break;
                     case "8":
-                        TakeDataBookOwner(_dataProvider, bookOrOwnerType, prefix, howMany);
+                        TakeDataBookOwner(_dataProvider, bookOrOwnerType);
                         break;
                     case "9":
-                        SkipDataBookOwner(_dataProvider, bookOrOwnerType, prefix, howMany);
+                        SkipDataBookOwner(_dataProvider, bookOrOwnerType);
                         break;
                     case "X":
                         closeApp = false;
@@ -124,9 +117,10 @@ namespace BookApp.Services
                         Console.ResetColor();
                         continue;
                 }
-            }
+            } while (closeApp);
 
         }
+
 
         static entitiesType GetBookOrOwnerType()
         {
@@ -181,6 +175,22 @@ namespace BookApp.Services
             bookOwner.LastName = GetInputFromUser();
 
             return bookOwner;
+        }
+
+        static string GetPrefix()
+        {
+            Console.WriteLine("You can enter prefix:", Console.ForegroundColor = ConsoleColor.Cyan);
+            Console.ResetColor();
+            string prefix = GetInputFromUser();
+            return prefix;
+        }
+
+        private int GetHowMany()
+        {
+            Console.WriteLine("You can enter number:", Console.ForegroundColor = ConsoleColor.Cyan);
+            Console.ResetColor();
+            int howMany = Int32.Parse(GetInputFromUser());
+            return howMany;
         }
 
         static void AddBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
@@ -277,156 +287,220 @@ namespace BookApp.Services
 
         static void ShowAllDataBookOrOwner(IRepository<Book> bookRepository, IRepository<BookOwner> bookOwnerRepository, entitiesType bookOrOwnerType)
         {
-            switch (bookOrOwnerType)
+            try
             {
-                case entitiesType.BOOK:
-                    var itemsBook = bookRepository.GetAll();
-                    foreach (var item in itemsBook)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    break;
-                case entitiesType.OWNER:
-                    var itemsOwner = bookOwnerRepository.GetAll();
-                    foreach (var item in itemsOwner)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    break;
+                switch (bookOrOwnerType)
+                {
+                    case entitiesType.BOOK:
+                        var itemsBook = bookRepository.GetAll();
+                        foreach (var item in itemsBook)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        break;
+                    case entitiesType.OWNER:
+                        var itemsOwner = bookOwnerRepository.GetAll();
+                        foreach (var item in itemsOwner)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        break;
+                }
+                Console.WriteLine("The available data was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                Console.ResetColor();
+                Console.WriteLine();
             }
-            Console.WriteLine("The available data was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-            Console.ResetColor();
-            Console.WriteLine();
-        }
-
-        private void SkipDataBookOwner(IDataProvider dataProvider, entitiesType bookOrOwnerType, string prefix, int howMany)
-        {
-            switch (bookOrOwnerType)
+            catch (Exception e)
             {
-                case entitiesType.BOOK:
-                    var itemsBookSkip = dataProvider.SkipBooks(howMany);
-                    var itemsBookSkipWhileTitleStartsWith = dataProvider.SkipBooksWhileTitleStartsWith(prefix);
-
-                    foreach (var item in itemsBookSkip)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Books was skipped and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-                    Console.ResetColor();
-
-                    foreach (var item in itemsBookSkipWhileTitleStartsWith)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Books was skipped and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    break;
-                case entitiesType.OWNER:
-                    var itemsOwnerSkip = dataProvider.SkipBookOwner(howMany);
-                    var itemsOwnerSkipWhileTitleStartsWith = dataProvider.SkipBookOwnerWhileLastNameStartsWith(prefix);
-
-                    foreach (var item in itemsOwnerSkip)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Owners was skipped and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-                    Console.ResetColor();
-
-                    foreach (var item in itemsOwnerSkipWhileTitleStartsWith)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Owners was skipped and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    break;
+                Console.WriteLine($"{e.Message}", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
+                Console.WriteLine();
             }
         }
 
-        private void TakeDataBookOwner(IDataProvider dataProvider, entitiesType bookOrOwnerType, string prefix, int howMany)
+        private void SkipDataBookOwner(IDataProvider dataProvider, entitiesType bookOrOwnerType)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int howMany = GetHowMany();
+                switch (bookOrOwnerType)
+                {
+                    case entitiesType.BOOK:
+                        var itemsBookSkip = dataProvider.SkipBooks(howMany);
+
+                        foreach (var item in itemsBookSkip)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Books was skipped and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        break;
+                    case entitiesType.OWNER:
+                        var itemsOwnerSkip = dataProvider.SkipBookOwner(howMany);
+
+                        foreach (var item in itemsOwnerSkip)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Owners was skipped and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
+                Console.WriteLine();
+            }
         }
 
-        private void ShowWhereBookTitleOrBookOwnerLastNameStartsWith(IDataProvider dataProvider, entitiesType bookOrOwnerType, string prefix)
+
+        private void TakeDataBookOwner(IDataProvider dataProvider, entitiesType bookOrOwnerType)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int howMany = GetHowMany();
+                switch (bookOrOwnerType)
+                {
+                    case entitiesType.BOOK:
+                        var itemsBookTake = dataProvider.TakeBooks(howMany);
+
+                        foreach (var item in itemsBookTake)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Books was taken and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        break;
+                    case entitiesType.OWNER:
+                        var itemsOwnerTake = dataProvider.TakeBookOwners(howMany);
+
+                        foreach (var item in itemsOwnerTake)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Owners was taken and displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+        }
+
+        private void ShowWhereBookTitleOrBookOwnerLastNameStartsWith(IDataProvider dataProvider, entitiesType bookOrOwnerType)
+        {
+            try
+            {
+                string prefix = GetPrefix();
+                switch (bookOrOwnerType)
+                {
+                    case entitiesType.BOOK:
+                        var itemsBookTake = dataProvider.WhereBooksTitleStartsWith(prefix);
+
+                        foreach (var item in itemsBookTake)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine($"Books where Title starts with {prefix} was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        break;
+                    case entitiesType.OWNER:
+                        var itemsOwnerTake = dataProvider.WhereBookOwnerLastNameStartsWith(prefix);
+
+                        foreach (var item in itemsOwnerTake)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine($"Owners where Last Name starts with {prefix} was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
+                Console.WriteLine();
+            }
         }
 
         private void OrderDataBookOrOwner(IDataProvider dataProvider, entitiesType bookOrOwnerType)
         {
-            switch (bookOrOwnerType)
+            try
             {
-                case entitiesType.BOOK:
-                    var itemsBookOrderByTitle = dataProvider.OrderBooksByTitle();
-                    var itemsBookOrderByTitleAndAuthor = dataProvider.OrderBooksByTitleAndAuthor();
+                switch (bookOrOwnerType)
+                {
+                    case entitiesType.BOOK:
+                        var itemsBookOrderByTitle = dataProvider.OrderBooksByTitle();
 
-                    foreach (var item in itemsBookOrderByTitle)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Books order by Title was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-                    Console.ResetColor();
+                        foreach (var item in itemsBookOrderByTitle)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Books order by Title was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        Console.WriteLine();
+                        break;
+                    case entitiesType.OWNER:
+                        var itemsOwnerOrderByLastName = dataProvider.OrderBookOwnerByLastName();
 
-                    foreach (var item in itemsBookOrderByTitleAndAuthor)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Books order by Title and Author was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    break;
-                case entitiesType.OWNER:
-                    var itemsOwnerOrderByLastName = dataProvider.OrderBookOwnerByLastName();
-                    var itemsOwnerOrderByFirstNameAndLastName = dataProvider.OrderBookOwnerByFirstNameAndLastName();
-
-                    foreach (var item in itemsOwnerOrderByLastName)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Owners order by Last Name was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-                    Console.ResetColor();
-
-                    foreach (var item in itemsOwnerOrderByFirstNameAndLastName)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Owners order by First Name and Last Name was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    break;
+                        foreach (var item in itemsOwnerOrderByLastName)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Owners order by Last Name was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        Console.WriteLine();
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
+                Console.WriteLine();
             }
         }
 
         private void GetUniqueBookAuthorsOrOwnerNames(IDataProvider dataProvider, entitiesType bookOrOwnerType)
         {
-            switch (bookOrOwnerType)
+            try
             {
-                case entitiesType.BOOK:
-                    var itemsBook = dataProvider.GetUniqueBooksAuthor();
-                    foreach (var item in itemsBook)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Unique Book Authors was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    break;
-                case entitiesType.OWNER:
-                    var itemsOwner = dataProvider.GetUniqueBookOwnerLastName();
-                    foreach (var item in itemsOwner)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    Console.WriteLine("Unique Book Owners Last Name was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
-                    Console.ResetColor();
-                    Console.WriteLine();
-                    break;
+                switch (bookOrOwnerType)
+                {
+                    case entitiesType.BOOK:
+                        var itemsBook = dataProvider.GetUniqueBooksAuthor();
+                        foreach (var item in itemsBook)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Unique Book Authors was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        Console.WriteLine();
+                        break;
+                    case entitiesType.OWNER:
+                        var itemsOwner = dataProvider.GetUniqueBookOwnerLastName();
+                        foreach (var item in itemsOwner)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        Console.WriteLine("Unique Book Owners Last Name was displayed.\n", Console.ForegroundColor = ConsoleColor.Yellow);
+                        Console.ResetColor();
+                        Console.WriteLine();
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
+                Console.WriteLine();
             }
         }
 
@@ -440,3 +514,4 @@ namespace BookApp.Services
 
     }
 }
+

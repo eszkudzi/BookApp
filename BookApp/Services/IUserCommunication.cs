@@ -2,7 +2,6 @@
 {
     internal interface IUserCommunication
     {
-        void Intro();
         void Communication();
     }
 }
