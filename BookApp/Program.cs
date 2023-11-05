@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using BookApp;
-using BookApp.DataProviders;
-using BookApp.Entities;
-using BookApp.Repositories;
 using BookApp.Services;
+using BookApp.Repositories;
+using BookApp.Entities;
+using BookApp.DataProviders;
 
 var services = new ServiceCollection();
 services.AddSingleton<IApp, App>();

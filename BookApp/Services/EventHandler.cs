@@ -1,5 +1,6 @@
-﻿using BookApp.Entities;
-using BookApp.Repositories;
+﻿using BookApp.Repositories;
+using BookApp.Entities;
+using BookApp.DataProviders;
 
 namespace BookApp.Services
 {

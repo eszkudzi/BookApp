@@ -1,4 +1,5 @@
 ﻿using BookApp.Entities;
+
 namespace BookApp.Repositories
 {
     public interface IReadRepository<out T> 

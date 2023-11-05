@@ -1,5 +1,4 @@
-﻿using BookApp.Entities;
-namespace BookApp.Services
+﻿namespace BookApp.Services
 {
     internal interface IEventHandler
     {
