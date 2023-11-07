@@ -18,8 +18,20 @@ namespace BookApp.Components.CsvReader.Extensions
                     WorkId = int.Parse(columns[3]),
                     BooksCount = int.Parse(columns[4]),
                     Isbn = int.Parse(columns[5]),
-                    Isbn13 = double.Parse(columns[6]),
-                    Authors = columns[7]
+                    Authors = columns[7],
+                    OriginalTitle = columns[9],
+                    Title = columns[10],
+                    AverageRating = double.Parse(columns[12]),
+                    RatingsCount = int.Parse(columns[13]),
+                    WorkRatingsCount = int.Parse(columns[14]),
+                    WorkTextReviewsCount = int.Parse(columns[15]),
+                    Ratings1 = int.Parse(columns[16]),
+                    Ratings2 = int.Parse(columns[17]),
+                    Ratings3 = int.Parse(columns[18]),
+                    Ratings4 = int.Parse(columns[19]),
+                    Ratings5 = int.Parse(columns[20]),
+                    ImageUrl = columns[21],
+                    SmallImageUrl = columns[22]
                 };
             }
 

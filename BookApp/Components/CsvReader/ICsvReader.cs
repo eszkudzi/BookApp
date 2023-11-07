@@ -2,7 +2,7 @@
 
 namespace BookApp.Components.CsvReader
 {
-    internal interface ICsvReader
+    public interface ICsvReader
     {
         List<Books> ProcessBooks(string filePath);
         List<Ratings> ProcessRatings(string filePath);

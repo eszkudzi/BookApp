@@ -5,13 +5,13 @@ using System.Xml.Linq;
 
 namespace BookApp.Components.XmlReader
 {
-    internal class XmlReader : IXmlReader
+    public class XmlReader : IXmlReader
     {
         private readonly ICsvReader _csvReader;
         private List<Books> _booksRecords;
         private List<Ratings> _ratingsRecords;
 
-        public XmlService(ICsvReader csvReader)
+        public XmlReader(ICsvReader csvReader)
         {
             _csvReader = csvReader;
             _booksRecords = _csvReader.ProcessBooks("Resources\\Files\\books.csv");
@@ -21,16 +21,31 @@ namespace BookApp.Components.XmlReader
 
         public void CreateXml()
         {
-            // DO POPRAWIENIA
+            var ratingsWithBooksDetails = _ratingsRecords.Join(
+                _booksRecords,
+                x => x.BookId,
+                x => x.BookId,
+                (_ratingsRecords, _booksRecords) =>
+                    new 
+                    {
+                        _ratingsRecords.BookId,
+                        _booksRecords.Isbn,
+                        _booksRecords.Authors,
+                        _booksRecords.Title,
+                        _ratingsRecords.Rating
+                    })
+                .OrderByDescending(x=>x.Rating);
+
 
             var document = new XDocument();
-            var booksWithRatings = new XElement("Books", books
+            var booksWithRatings = new XElement("Books", ratingsWithBooksDetails
                 .Select(x =>
                 new XElement("Book",
-                new XAttribute("ID", x.Manufacturer),
-                new XAttribute("ISBN", x.Combined),
-                new XAttribute("Authors", x.Manufacturer),
-                new XAttribute("Rating", x.Manufacturer)
+                new XAttribute("IdBook", x.BookId),
+                new XAttribute("ISBN", x.Isbn),
+                new XAttribute("Authors", x.Authors),
+                new XAttribute("Title", x.Title),
+                new XAttribute("Rating", x.Rating)
                 )
                 ));
 
@@ -45,7 +60,7 @@ namespace BookApp.Components.XmlReader
                 .Element("Books")?
                 .Elements("Book")
                 .Where(x => x.Attribute("Rating")?.Value == "5")
-                .Select(x => x.Attribute("BookId")?.Value);
+                .Select(x => x.Attribute("IdBook")?.Value);
 
             Console.WriteLine("List of books with only high rating (5 stars):");
             foreach (var book in booksWithHighRating)
