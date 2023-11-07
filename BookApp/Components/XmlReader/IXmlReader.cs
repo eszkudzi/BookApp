@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BookApp.Components.CsvReader.Models;
 
 namespace BookApp.Components.XmlReader
 {
-    internal interface IXmlReader
+    public interface IXmlReader
     {
+        public void CreateXml();
+        public void QueryXml();
     }
 }

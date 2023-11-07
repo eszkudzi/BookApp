@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BookApp.Components.CsvReader.Models
+﻿namespace BookApp.Components.CsvReader.Models
 {
-    internal class Ratings
+    public class Ratings
     {
+        public int UserId { get; set; }
+        public int BookId { get; set; }
+        public int Rating { get; set; }
     }
 }

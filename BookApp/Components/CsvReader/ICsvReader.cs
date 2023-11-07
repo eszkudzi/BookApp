@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BookApp.Components.CsvReader.Models;
 
 namespace BookApp.Components.CsvReader
 {
     internal interface ICsvReader
     {
+        List<Books> ProcessBooks(string filePath);
+        List<Ratings> ProcessRatings(string filePath);
     }
 }

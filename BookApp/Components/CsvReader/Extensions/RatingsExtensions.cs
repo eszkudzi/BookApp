@@ -1,12 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BookApp.Components.CsvReader.Models;
 
 namespace BookApp.Components.CsvReader.Extensions
 {
-    internal class RatingsExtensions
+    public static class RatingsExtensions
     {
+        public static IEnumerable<Ratings> ToRatings(this IEnumerable<string> source)
+        {
+            foreach (var line in source)
+            {
+                var columns = line.Split(',');
+
+                yield return new Ratings
+                {
+                    UserId = int.Parse(columns[0]),
+                    BookId = int.Parse(columns[1]),
+                    Rating = int.Parse(columns[2])
+                };
+            }
+        }
     }
 }
