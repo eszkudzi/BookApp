@@ -1,7 +1,7 @@
 ﻿using BookApp.Components.CsvReader;
 using BookApp.Components.CsvReader.Models;
-using System.Linq;
 using System.Xml.Linq;
+
 
 namespace BookApp.Components.XmlReader
 {
@@ -21,33 +21,34 @@ namespace BookApp.Components.XmlReader
 
         public void CreateXml()
         {
-            var ratingsWithBooksDetails = _ratingsRecords.Join(
-                _booksRecords,
-                x => x.BookId,
-                x => x.BookId,
-                (_ratingsRecords, _booksRecords) =>
-                    new 
-                    {
-                        _ratingsRecords.BookId,
-                        _booksRecords.Isbn,
-                        _booksRecords.Authors,
-                        _booksRecords.Title,
-                        _ratingsRecords.Rating
-                    })
-                .OrderByDescending(x=>x.Rating);
-
+            var bookDetailsWithRating = _booksRecords.Join(
+                 _ratingsRecords,
+                 (books => books.Isbn),
+                 (ratings => ratings.Isbn),
+                 (_booksRecords, _ratingsRecords) =>
+                     new
+                     {
+                         _booksRecords.Isbn,
+                         _booksRecords.Title,
+                         _booksRecords.Author,
+                         _booksRecords.YearOfPublication,
+                         _booksRecords.Publisher,
+                         _ratingsRecords.Rating
+                     });
 
             var document = new XDocument();
-            var booksWithRatings = new XElement("Books", ratingsWithBooksDetails
-                .Select(x =>
-                new XElement("Book",
-                new XAttribute("IdBook", x.BookId),
-                new XAttribute("ISBN", x.Isbn),
-                new XAttribute("Authors", x.Authors),
-                new XAttribute("Title", x.Title),
-                new XAttribute("Rating", x.Rating)
-                )
-                ));
+            var booksWithRatings = new XElement("Books", bookDetailsWithRating
+                 .Select(x =>
+                 new XElement("Book",
+                 new XAttribute("ISBN", x.Isbn),
+                 new XAttribute("Title", x.Title),
+                 new XAttribute("Author", x.Author),
+                 new XAttribute("YearOfPublication", x.YearOfPublication),
+                 new XAttribute("Publisher", x.Publisher),
+                 new XAttribute("Rating", x.Rating)
+                 )
+                 ));
+
 
             document.Add(booksWithRatings);
             document.Save("booksWithRatings.xml");
@@ -59,10 +60,9 @@ namespace BookApp.Components.XmlReader
             var booksWithHighRating = document
                 .Element("Books")?
                 .Elements("Book")
-                .Where(x => x.Attribute("Rating")?.Value == "5")
-                .Select(x => x.Attribute("IdBook")?.Value);
+                .Select(x => x.Attribute("ISBN")?.Value);
 
-            Console.WriteLine("List of books with only high rating (5 stars):");
+            Console.WriteLine("List of books wit rating:");
             foreach (var book in booksWithHighRating)
             {
                 Console.WriteLine(book);
