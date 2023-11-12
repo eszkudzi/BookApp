@@ -22,7 +22,11 @@ namespace BookApp
         }
         public void Run()
         {
-            _xmlReader.QueryXml();
+            var _books = _csvReader.ProcessBooks("Resources\\Files\\books.csv");
+            var _ratings = _csvReader.ProcessRatings("Resources\\Files\\ratings.csv");
+
+            _xmlReader.CreateXml(_books, _ratings);
+
             _eventHandler.Subscribe();
             _userCommunication.Communication();
         }
