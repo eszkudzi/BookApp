@@ -38,7 +38,7 @@ namespace BookApp.Services
             Console.WriteLine("--------------------------------------------------------", Console.BackgroundColor = ConsoleColor.Cyan, Console.ForegroundColor = ConsoleColor.Black);
             Console.WriteLine("---  HELLO! THIS IS BOOK APP - DIGITAL BOOK ARCHIVE  ---");
             Console.WriteLine("--------------------------------------------------------");
-            Console.WriteLine("----------------  Data stored in file.  ----------------");
+            Console.WriteLine("----------------  Data stored in SQL Database.  ----------------");
             Console.WriteLine("--------------------------------------------------------");
             Console.ResetColor();
 
