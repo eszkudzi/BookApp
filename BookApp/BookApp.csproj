@@ -15,14 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\Files\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Resources\Files\books.csv">
+    <None Update="1_DataAccess\Resources\Files\books.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Files\ratings.csv">
+    <None Update="1_DataAccess\Resources\Files\ratings.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
