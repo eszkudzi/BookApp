@@ -15,7 +15,7 @@ namespace BookApp
 
         private readonly BookAppDbContext _bookAppDbContext;
 
-        public App(IUserCommunication userCommunication,IEventHandler eventHandler, ICsvReader csvReader, IXmlReader xmlReader, BookAppDbContext bookAppDbContext)
+        public App(IUserCommunication userCommunication, IEventHandler eventHandler, ICsvReader csvReader, IXmlReader xmlReader, BookAppDbContext bookAppDbContext)
         {
             _userCommunication = userCommunication;
             _eventHandler = eventHandler;
@@ -27,12 +27,13 @@ namespace BookApp
         }
         public void Run()
         {
-            //var _books = _csvReader.ProcessBooks("Resources\\Files\\books.csv");
-            //var _ratings = _csvReader.ProcessRatings("Resources\\Files\\ratings.csv");
+            var _books = _csvReader.ProcessBooks("Resources\\Files\\books.csv");
+            var _ratings = _csvReader.ProcessRatings("Resources\\Files\\ratings.csv");
 
+            _xmlReader.CreateXml(_books, _ratings);
             _eventHandler.Subscribe();
             _userCommunication.Communication();
-            //_xmlReader.CreateXml(_books, _ratings);
+
         }
     }
 }

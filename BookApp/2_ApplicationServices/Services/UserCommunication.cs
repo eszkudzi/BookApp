@@ -38,7 +38,7 @@ namespace BookApp.Services
             Console.WriteLine("--------------------------------------------------------", Console.BackgroundColor = ConsoleColor.Cyan, Console.ForegroundColor = ConsoleColor.Black);
             Console.WriteLine("---  HELLO! THIS IS BOOK APP - DIGITAL BOOK ARCHIVE  ---");
             Console.WriteLine("--------------------------------------------------------");
-            Console.WriteLine("----------------  Data stored in SQL Database.  ----------------");
+            Console.WriteLine("------------  Data stored in SQL Database.  ------------");
             Console.WriteLine("--------------------------------------------------------");
             Console.ResetColor();
 
@@ -60,7 +60,7 @@ namespace BookApp.Services
                 string? action = GetInputFromUser();
 
 
-                if ((action != "1") && (action != "2") && (action != "3") && (action != "4") && (action != "5") && (action != "6") && (action != "7") && (action != "8") && (action != "9") && (action.ToUpper() != "X"))
+                if (!(new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "X" }).Contains(action))
                 {
                     Console.WriteLine($"You choose invalid option. Choose again!\n", Console.ForegroundColor = ConsoleColor.Red);
                     Console.ResetColor();
@@ -504,14 +504,11 @@ namespace BookApp.Services
             }
         }
 
-
         enum entitiesType
         {
             BOOK,
             OWNER
         }
 
-
     }
 }
-
